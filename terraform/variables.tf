@@ -41,3 +41,9 @@ variable "asg_desired_capacity" {
   type        = number
   default     = 2
 }
+
+variable "tailscale_auth_key" {
+  type        = string
+  description = "Tailscale auth key (ephemeral/reusable) used by EC2 instances to join the tailnet"
+  sensitive   = true
+}
