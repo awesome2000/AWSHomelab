@@ -270,13 +270,14 @@ resource "aws_launch_template" "web_lt" {
     }
   }
 
-  user_data = base64encode(<<-EOF
-              #!/bin/bash
-              dnf update -y
-              dnf install -y python3  # needed for Ansible
-              EOF
+  # NEW: use a template file for user data
+  user_data = base64encode(
+    templatefile("${path.module}/userdata.tftpl", {
+      tailscale_auth_key = var.tailscale_auth_key
+    })
   )
 }
+
 
 resource "aws_autoscaling_group" "web_asg" {
   name                      = "${var.project_name}-asg"

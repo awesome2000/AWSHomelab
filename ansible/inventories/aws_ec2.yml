@@ -1,0 +1,13 @@
+plugin: aws_ec2
+regions:
+  - us-west-2   # keep in sync with terraform
+filters:
+  tag:Role: web
+keyed_groups:
+  - key: tags.Role
+    prefix: ""
+    separator: ""
+hostnames:
+  - ip-address
+compose:
+  ansible_host: private_ip_address
