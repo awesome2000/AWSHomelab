@@ -1,25 +1,31 @@
 #!/bin/bash
 
+# Log output
+exec > /var/log/user-data.log 2>&1
 set -euxo pipefail
 
-# Basic OS updates and Python for Ansible
-dnf update -y
-dnf install -y python3 curl
+echo "=== User data starting at $(date) ==="
+
+# AL2023 already includes Python3 and curl-minimal.
+# Just verify curl works.
+curl --version || echo "Warning: curl not found?"
 
 # Install Tailscale
+echo "Installing Tailscale..."
 curl -fsSL https://tailscale.com/install.sh | sh
 
 # Enable and start tailscaled
 systemctl enable --now tailscaled
 
-# Fetch instance ID (for unique hostnames)
+# Generate hostname
 INSTANCE_ID="$(curl -s http://169.254.169.254/latest/meta-data/instance-id || echo unknown)"
 HOSTNAME="web-$${INSTANCE_ID}"
 
-# Bring the node up on your tailnet
+# Bring Tailscale up
 tailscale up \
   --auth-key="${tailscale_auth_key}" \
   --hostname="$${HOSTNAME}" \
   --ssh=true \
-  --advertise-tags=tag:aws \
   --accept-routes=false
+
+echo "=== User data complete at $(date) ==="
