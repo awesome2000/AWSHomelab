@@ -6,26 +6,28 @@ set -euxo pipefail
 
 echo "=== User data starting at $(date) ==="
 
-# AL2023 already includes Python3 and curl-minimal.
-# Just verify curl works.
+# Amazon Linux 2023 already includes Python3 and curl-minimal.
 curl --version || echo "Warning: curl not found?"
 
 # Install Tailscale
 echo "Installing Tailscale..."
 curl -fsSL https://tailscale.com/install.sh | sh
 
-# Enable and start tailscaled
+echo "Enabling and starting tailscaled..."
 systemctl enable --now tailscaled
 
-# Generate hostname
-INSTANCE_ID="$(curl -s http://169.254.169.254/latest/meta-data/instance-id || echo unknown)"
-HOSTNAME="web-$${INSTANCE_ID}"
+# Use local hostname instead of EC2 metadata
+LOCAL_HOSTNAME="$(hostname -s || hostname || echo unknown)"
+# prefix with 'web-' and force lowercase just to be safe
+HOSTNAME="web-$${LOCAL_HOSTNAME,,}"
 
-# Bring Tailscale up
+echo "Running 'tailscale up' for $${HOSTNAME}..."
+
 tailscale up \
   --auth-key="${tailscale_auth_key}" \
   --hostname="$${HOSTNAME}" \
   --ssh=true \
-  --accept-routes=false
+  --accept-routes=false \
+  || echo "WARNING: tailscale up failed (non-fatal). Check /var/log/user-data.log."
 
 echo "=== User data complete at $(date) ==="

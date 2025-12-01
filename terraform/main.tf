@@ -283,7 +283,7 @@ resource "aws_autoscaling_group" "web_asg" {
   name                      = "${var.project_name}-asg"
   desired_capacity          = var.asg_desired_capacity
   max_size                  = 4
-  min_size                  = 2
+  min_size                  = 0
   vpc_zone_identifier       = aws_subnet.private[*].id
   health_check_type         = "EC2"
   health_check_grace_period = 300
