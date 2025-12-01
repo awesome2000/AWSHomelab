@@ -14,12 +14,12 @@ systemctl enable --now tailscaled
 
 # Fetch instance ID (for unique hostnames)
 INSTANCE_ID="$(curl -s http://169.254.169.254/latest/meta-data/instance-id || echo unknown)"
-HOSTNAME="web-${INSTANCE_ID}"
+HOSTNAME="web-$${INSTANCE_ID}"
 
 # Bring the node up on your tailnet
 tailscale up \
   --auth-key="${tailscale_auth_key}" \
-  --hostname="${HOSTNAME}" \
+  --hostname="$${HOSTNAME}" \
   --ssh=true \
   --advertise-tags=tag:aws \
   --accept-routes=false
